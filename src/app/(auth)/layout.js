@@ -1,0 +1,46 @@
+import Script from "next/script";
+
+export const metadata = {
+  title: {
+    default: "Kedung Susu",
+    template: "%s | Kedung Susu",
+  },
+  description: "Halaman login dan register Kedung Susu",
+};
+
+export default function AuthLayout({ children }) {
+  return (
+    <div>
+      {/* Preloader */}
+      <div className="preloader">
+        <img
+          src="https://demos.adminmart.com/premium/bootstrap/modernize-bootstrap/package/dist/images/logos/favicon.ico"
+          alt="loader"
+          className="lds-ripple img-fluid"
+        />
+      </div>
+
+      {/* Halaman anak */}
+      {children}
+
+      {/* Scripts */}
+      <Script
+        src="/libs/jquery/dist/jquery.min.js"
+        strategy="beforeInteractive"
+      />
+      <Script
+        src="/libs/simplebar/dist/simplebar.min.js"
+        strategy="afterInteractive"
+      />
+      <Script
+        src="/libs/bootstrap/dist/js/bootstrap.bundle.min.js"
+        strategy="afterInteractive"
+      />
+      <Script src="/js/app.min.js" strategy="afterInteractive" />
+      <Script src="/js/app.init.js" strategy="afterInteractive" />
+      <Script src="/js/app-style-switcher.js" strategy="afterInteractive" />
+      <Script src="/js/sidebarmenu.js" strategy="afterInteractive" />
+      <Script src="/js/custom.js" strategy="afterInteractive" />
+    </div>
+  );
+}
