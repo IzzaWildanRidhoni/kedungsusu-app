@@ -1,32 +1,35 @@
+import Image from "next/image";
+
 export default function Header() {
   return (
     <header className="app-header">
       <nav className="navbar navbar-expand-lg navbar-light">
         <ul className="navbar-nav">
           <li className="nav-item">
-            <a
+            <button
               className="nav-link sidebartoggler nav-icon-hover ms-n3"
               id="headerCollapse"
-              href="javascript:void(0)"
             >
               <i className="ti ti-menu-2" />
-            </a>
+            </button>
           </li>
         </ul>
         <ul className="navbar-nav quick-links d-none d-lg-flex">
           <li className="nav-item dropdown hover-dd d-none d-lg-block"></li>
         </ul>
         <div className="d-block d-lg-none">
-          <img
+          <Image
             src="https://demos.adminmart.com/premium/bootstrap/modernize-bootstrap/package/dist/images/logos/dark-logo.svg"
             className="dark-logo"
             width={180}
+            height={30}
             alt=""
           />
-          <img
+          <Image
             src="https://demos.adminmart.com/premium/bootstrap/modernize-bootstrap/package/dist/images/logos/light-logo.svg"
             className="light-logo"
             width={180}
+            height={30}
             alt=""
           />
         </div>
