@@ -1,8 +1,69 @@
 "use client";
 
+import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import axios from "axios";
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.name) newErrors.name = "Name is required";
+    if (!formData.email) newErrors.email = "Email is required";
+    if (!formData.password) newErrors.password = "Password is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    setLoading(true);
+    try {
+      const response = await axios.post(`${API_URL}/api/register`, formData);
+
+      console.log(response.data);
+
+      const token = response.data.data.token;
+      Cookies.set("token", token, { expires: 7 });
+      Cookies.set("user", JSON.stringify(response.data.data.user), {
+        expires: 7,
+      });
+
+      router.push("/");
+    } catch (err) {
+      if (err.response?.data?.errors) {
+        setErrors(err.response.data.errors);
+      } else {
+        alert("Register failed: " + err.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div
       className="page-wrapper"
@@ -17,87 +78,93 @@ export default function RegisterPage() {
           <div className="row">
             <div className="col-xl-7 col-xxl-8">
               <a
-                href="index.html"
+                href="/"
                 className="text-nowrap logo-img d-block px-4 py-9 w-100"
               >
-                <img
+                <Image
                   src="https://demos.adminmart.com/premium/bootstrap/modernize-bootstrap/package/dist/images/logos/dark-logo.svg"
                   width={180}
-                  alt=""
+                  height={30}
+                  alt="logo"
                 />
               </a>
               <div
                 className="d-none d-xl-flex align-items-center justify-content-center"
                 style={{ height: "calc(100vh - 80px)" }}
               >
-                <img
+                <Image
                   src="https://demos.adminmart.com/premium/bootstrap/modernize-bootstrap/package/dist/images/backgrounds/login-security.svg"
                   alt=""
                   className="img-fluid"
                   width={500}
+                  height={500}
                 />
               </div>
             </div>
+
             <div className="col-xl-5 col-xxl-4">
               <div className="authentication-login min-vh-100 bg-body row justify-content-center align-items-center p-4">
                 <div className="col-sm-8 col-md-6 col-xl-9">
-                  <h2 className="mb-3 fs-7 fw-bolder">
-                    Welcome to Kedung Susu
-                  </h2>
-                  <p className=" mb-9">
-                    Manage your account and explore features
-                  </p>
-                  <form>
+                  <h2 className="mb-3 fs-7 fw-bolder">Register</h2>
+                  <p className="mb-9">Register to create an account</p>
+                  <form onSubmit={handleRegister}>
                     <div className="mb-3">
-                      <label
-                        htmlFor="exampleInputEmail1"
-                        className="form-label"
-                      >
-                        Name
-                      </label>
+                      <label className="form-label">Name</label>
                       <input
                         type="text"
-                        className="form-control"
-                        id="exampleInputtext"
-                        aria-describedby="textHelp"
+                        name="name"
+                        className={`form-control ${
+                          errors.name ? "is-invalid" : ""
+                        }`}
+                        value={formData.name}
+                        onChange={handleChange}
                       />
+                      {errors.name && (
+                        <div className="invalid-feedback">{errors.name}</div>
+                      )}
                     </div>
                     <div className="mb-3">
-                      <label
-                        htmlFor="exampleInputEmail1"
-                        className="form-label"
-                      >
-                        Email address
-                      </label>
+                      <label className="form-label">Email address</label>
                       <input
                         type="email"
-                        className="form-control"
-                        id="exampleInputEmail1"
-                        aria-describedby="emailHelp"
+                        name="email"
+                        className={`form-control ${
+                          errors.email ? "is-invalid" : ""
+                        }`}
+                        value={formData.email}
+                        onChange={handleChange}
                       />
+                      {errors.email && (
+                        <div className="invalid-feedback">{errors.email}</div>
+                      )}
                     </div>
                     <div className="mb-4">
-                      <label
-                        htmlFor="exampleInputPassword1"
-                        className="form-label"
-                      >
-                        Password
-                      </label>
+                      <label className="form-label">Password</label>
                       <input
                         type="password"
-                        className="form-control"
-                        id="exampleInputPassword1"
+                        name="password"
+                        className={`form-control ${
+                          errors.password ? "is-invalid" : ""
+                        }`}
+                        value={formData.password}
+                        onChange={handleChange}
                       />
+                      {errors.password && (
+                        <div className="invalid-feedback">
+                          {errors.password}
+                        </div>
+                      )}
                     </div>
                     <button
+                      type="submit"
                       className="btn btn-primary w-100 py-8 mb-4 rounded-2"
-                      id="register-btn"
+                      disabled={loading}
                     >
-                      Sign Up
+                      {loading ? "Registering..." : "Sign Up"}
                     </button>
                     <div className="d-flex align-items-center">
                       <p className="fs-4 mb-0 text-dark">
-                        Already have an Account?
+                        Already have an account?
                       </p>
                       <Link
                         className="text-primary fw-medium ms-2"
