@@ -6,7 +6,7 @@ export const metadata = {
   keywords: "Kedung Susu, susu murni, fresh milk",
   authors: [{ name: "Wildan" }],
   icons: {
-    icon: "https://demos.adminmart.com/premium/bootstrap/modernize-bootstrap/package/dist/images/logos/favicon.ico",
+    icon: "/images/favicon.ico",
   },
 };
 

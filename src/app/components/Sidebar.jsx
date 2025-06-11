@@ -14,6 +14,7 @@ export default function Sidebar() {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       await axios.post(`${API_URL}/api/logout`);
       Cookies.remove("token");
+      Cookies.remove("user");
       router.push("/login");
     } catch (error) {
       console.error("Logout failed:", error);
