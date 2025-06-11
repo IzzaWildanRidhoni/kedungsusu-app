@@ -61,8 +61,6 @@ export default function RegisterPage() {
       router.push("/");
     } catch (err) {
       if (err.response?.data?.data) {
-        console.log(err.response.data.data);
-
         setErrors(err.response.data.data);
       } else {
         alert("Register failed: " + err.message);
