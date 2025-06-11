@@ -1,26 +1,100 @@
-import Link from "next/link";
+"use client";
+
+import { useEffect, useState, useRef } from "react";
+import axios from "axios";
+import Cookies from "js-cookie";
+import $ from "jquery";
+import "datatables.net-bs5";
+import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 
 export default function UsersPage() {
+  const tableRef = useRef(null);
+  const [dataLoaded, setDataLoaded] = useState(false);
+
+  useEffect(() => {
+    const fetchDataAndInitTable = async () => {
+      try {
+        const token = Cookies.get("token");
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/users`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const users = response.data.data;
+
+        // Inisialisasi DataTable
+        $(tableRef.current).DataTable({
+          data: users,
+          columns: [
+            { data: "id", title: "ID" },
+            { data: "name", title: "Name" },
+            { data: "email", title: "Email" },
+            {
+              data: "roles",
+              title: "Role",
+              render: (data) => {
+                return data?.map((r) => r.name).join(", ") || "-";
+              },
+            },
+            {
+              data: null,
+              title: "Actions",
+              orderable: false,
+              searchable: false,
+              render: (data, type, row) => {
+                return `
+                    <a href="/admin/users/${row.id}" class="btn btn-sm btn-info me-1" title="Detail">
+                        <i class="ti ti-eye"></i>
+                    </a>
+                    <a href="/admin/users/${row.id}/edit" class="btn btn-sm btn-warning me-1" title="Edit">
+                        <i class="ti ti-pencil"></i>
+                    </a>
+                    <button class="btn btn-sm btn-danger" data-id="${row.id}" title="Delete" onclick="handleDelete(${row.id})">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                    `;
+              },
+            },
+          ],
+          destroy: true,
+        });
+
+        setDataLoaded(true);
+      } catch (err) {
+        console.error("Gagal memuat data user", err);
+      }
+    };
+
+    fetchDataAndInitTable();
+
+    return () => {
+      if ($.fn.DataTable.isDataTable(tableRef.current)) {
+        $(tableRef.current).DataTable().destroy();
+      }
+    };
+  }, []);
+
   return (
     <>
-      {/* --------------------------------------------------- */}
-      {/* Header End */}
-      {/* --------------------------------------------------- */}
       <div className="container-fluid">
         <div className="card bg-light-info shadow-none position-relative overflow-hidden">
           <div className="card-body px-4 py-3">
             <div className="row align-items-center">
               <div className="col-9">
-                <h4 className="fw-semibold mb-8">Users</h4>
+                <h4 className="fw-semibold mb-8">Editable</h4>
                 <nav aria-label="breadcrumb">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
-                      <Link className="text-muted " href="/">
-                        Page
-                      </Link>
+                      <a className="text-muted " href="index.html">
+                        Dashboard
+                      </a>
                     </li>
                     <li className="breadcrumb-item" aria-current="page">
-                      Users
+                      Table-Editable
                     </li>
                   </ol>
                 </nav>
@@ -37,845 +111,23 @@ export default function UsersPage() {
             </div>
           </div>
         </div>
-        <div className="widget-content searchable-container list">
-          {/* --------------------- start Contact ---------------- */}
-          <div className="card card-body">
-            <div className="row">
-              <div className="col-md-4 col-xl-3">
-                <form className="position-relative">
-                  <input
-                    type="text"
-                    className="form-control product-search ps-5"
-                    id="input-search"
-                    placeholder="Search Contacts..."
-                  />
-                  <i className="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3" />
-                </form>
+        <div className="row">
+          <div className="col-12">
+            <div className="card">
+              <div className="border-bottom title-part-padding">
+                <h4 className="card-title mb-0">User Management</h4>
               </div>
-              <div className="col-md-8 col-xl-9 text-end d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
-                <div
-                  className="action-btn show-btn"
-                  style={{ display: "none" }}
-                >
-                  <Link
-                    href="/users"
-                    className="delete-multiple btn-light-danger btn me-2 text-danger d-flex align-items-center font-medium"
-                  >
-                    <i className="ti ti-trash text-danger me-1 fs-5" /> Delete
-                    All Row
-                  </Link>
-                </div>
-                <Link
-                  href="/users/add"
-                  id="btn-add-contact"
-                  className="btn btn-info d-flex align-items-center"
-                >
-                  <i className="ti ti-users text-white me-1 fs-5" /> Add User
-                </Link>
+              <div className="card-body">
+                <table
+                  ref={tableRef}
+                  className="table table-bordered table-striped"
+                  style={{ width: "100%" }}
+                />
               </div>
-            </div>
-          </div>
-          {/* ---------------------
-                      end Contact
-                  ---------------- */}
-          {/* Modal */}
-          <div
-            className="modal fade"
-            id="addContactModal"
-            tabIndex={-1}
-            role="dialog"
-            aria-labelledby="addContactModalTitle"
-            aria-hidden="true"
-          >
-            <div className="modal-dialog modal-dialog-centered" role="document">
-              <div className="modal-content">
-                <div className="modal-header d-flex align-items-center">
-                  <h5 className="modal-title">Add User</h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                  />
-                </div>
-                <div className="modal-body">
-                  <div className="add-contact-box">
-                    <div className="add-contact-content">
-                      <form id="addContactModalTitle">
-                        <div className="row">
-                          <div className="col-md-6">
-                            <div className="mb-3 contact-name">
-                              <input
-                                type="text"
-                                id="c-name"
-                                className="form-control"
-                                placeholder="Name"
-                              />
-                              <span className="validation-text text-danger" />
-                            </div>
-                          </div>
-                          <div className="col-md-6">
-                            <div className="mb-3 contact-email">
-                              <input
-                                type="text"
-                                id="c-email"
-                                className="form-control"
-                                placeholder="Email"
-                              />
-                              <span className="validation-text text-danger" />
-                            </div>
-                          </div>
-                        </div>
-                        <div className="row">
-                          <div className="col-md-6">
-                            <div className="mb-3 contact-occupation">
-                              <input
-                                type="text"
-                                id="c-occupation"
-                                className="form-control"
-                                placeholder="Occupation"
-                              />
-                            </div>
-                          </div>
-                          <div className="col-md-6">
-                            <div className="mb-3 contact-phone">
-                              <input
-                                type="text"
-                                id="c-phone"
-                                className="form-control"
-                                placeholder="Phone"
-                              />
-                              <span className="validation-text text-danger" />
-                            </div>
-                          </div>
-                        </div>
-                        <div className="row">
-                          <div className="col-md-12">
-                            <div className="mb-3 contact-location">
-                              <input
-                                type="text"
-                                id="c-location"
-                                className="form-control"
-                                placeholder="Location"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button
-                    id="btn-add"
-                    className="btn btn-success rounded-pill px-4"
-                  >
-                    Add
-                  </button>
-                  <button
-                    id="btn-edit"
-                    className="btn btn-success rounded-pill px-4"
-                  >
-                    Save
-                  </button>
-                  <button
-                    className="btn btn-danger rounded-pill px-4"
-                    data-bs-dismiss="modal"
-                  >
-                    {" "}
-                    Discard{" "}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="card card-body">
-            <div className="table-responsive">
-              <table className="table search-table align-middle text-nowrap">
-                <thead className="header-item">
-                  <tr>
-                    <th>
-                      <div className="n-chk align-self-center text-center">
-                        <div className="form-check">
-                          <input
-                            type="checkbox"
-                            className="form-check-input primary"
-                            id="contact-check-all"
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="contact-check-all"
-                          />
-                          <span className="new-control-indicator" />
-                        </div>
-                      </div>
-                    </th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Location</th>
-                    <th>Phone</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* start row */}
-                  <tr className="search-items">
-                    <td>
-                      <div className="n-chk align-self-center text-center">
-                        <div className="form-check">
-                          <input
-                            type="checkbox"
-                            className="form-check-input contact-chkbox primary"
-                            id="checkbox1"
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="checkbox1"
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <img
-                          src="../../dist/images/profile/user-1.jpg"
-                          alt="avatar"
-                          className="rounded-circle"
-                          width={35}
-                        />
-                        <div className="ms-3">
-                          <div className="user-meta-info">
-                            <h6
-                              className="user-name mb-0"
-                              data-name="Emma Adams"
-                            >
-                              Emma Adams
-                            </h6>
-                            <span
-                              className="user-work fs-3"
-                              data-occupation="Web Developer"
-                            >
-                              Web Developer
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-email-addr"
-                        data-email="adams@mail.com"
-                      >
-                        adams@mail.com
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-location"
-                        data-location="Boston, USA"
-                      >
-                        Boston, USA
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-ph-no"
-                        data-phone="+1 (070) 123-4567"
-                      >
-                        +91 (070) 123-4567
-                      </span>
-                    </td>
-                    <td>
-                      <div className="action-btn">
-                        <a href="javascript:void(0)" className="text-info edit">
-                          <i className="ti ti-eye fs-5" />
-                        </a>
-                        <a
-                          href="javascript:void(0)"
-                          className="text-dark delete ms-2"
-                        >
-                          <i className="ti ti-trash fs-5" />
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                  {/* end row */}
-                  {/* start row */}
-                  <tr className="search-items">
-                    <td>
-                      <div className="n-chk align-self-center text-center">
-                        <div className="form-check">
-                          <input
-                            type="checkbox"
-                            className="form-check-input contact-chkbox primary"
-                            id="checkbox2"
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="checkbox2"
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <img
-                          src="../../dist/images/profile/user-2.jpg"
-                          alt="avatar"
-                          className="rounded-circle"
-                          width={35}
-                        />
-                        <div className="ms-3">
-                          <div className="user-meta-info">
-                            <h6
-                              className="user-name mb-0"
-                              data-name="Olivia Allen"
-                            >
-                              Olivia Allen
-                            </h6>
-                            <span
-                              className="user-work fs-3"
-                              data-occupation="Web Designer"
-                            >
-                              Web Designer
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-email-addr"
-                        data-email="allen@mail.com"
-                      >
-                        allen@mail.com
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-location"
-                        data-location="Sydney, Australia"
-                      >
-                        Sydney, Australia
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-ph-no"
-                        data-phone="+91 (125) 450-1500"
-                      >
-                        +91 (125) 450-1500
-                      </span>
-                    </td>
-                    <td>
-                      <div className="action-btn">
-                        <a href="javascript:void(0)" className="text-info edit">
-                          <i className="ti ti-eye fs-5" />
-                        </a>
-                        <a
-                          href="javascript:void(0)"
-                          className="text-dark delete ms-2"
-                        >
-                          <i className="ti ti-trash fs-5" />
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                  {/* end row */}
-                  {/* start row */}
-                  <tr className="search-items">
-                    <td>
-                      <div className="n-chk align-self-center text-center">
-                        <div className="form-check">
-                          <input
-                            type="checkbox"
-                            className="form-check-input contact-chkbox primary"
-                            id="checkbox3"
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="checkbox3"
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <img
-                          src="../../dist/images/profile/user-3.jpg"
-                          alt="avatar"
-                          className="rounded-circle"
-                          width={35}
-                        />
-                        <div className="ms-3">
-                          <div className="user-meta-info">
-                            <h6
-                              className="user-name mb-0"
-                              data-name="Isabella Anderson"
-                            >
-                              {" "}
-                              Isabella Anderson{" "}
-                            </h6>
-                            <span
-                              className="user-work fs-3"
-                              data-occupation="UX/UI Designer"
-                            >
-                              UX/UI Designer
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-email-addr"
-                        data-email="anderson@mail.com"
-                      >
-                        anderson@mail.com
-                      </span>
-                    </td>
-                    <td>
-                      <span className="usr-location" data-location="Miami, USA">
-                        Miami, USA
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-ph-no"
-                        data-phone="+91 (100) 154-1254"
-                      >
-                        +91 (100) 154-1254
-                      </span>
-                    </td>
-                    <td>
-                      <div className="action-btn">
-                        <a href="javascript:void(0)" className="text-info edit">
-                          <i className="ti ti-eye fs-5" />
-                        </a>
-                        <a
-                          href="javascript:void(0)"
-                          className="text-dark delete ms-2"
-                        >
-                          <i className="ti ti-trash fs-5" />
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                  {/* end row */}
-                  {/* start row */}
-                  <tr className="search-items">
-                    <td>
-                      <div className="n-chk align-self-center text-center">
-                        <div className="form-check">
-                          <input
-                            type="checkbox"
-                            className="form-check-input contact-chkbox primary"
-                            id="checkbox4"
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="checkbox4"
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <img
-                          src="../../dist/images/profile/user-4.jpg"
-                          alt="avatar"
-                          className="rounded-circle"
-                          width={35}
-                        />
-                        <div className="ms-3">
-                          <div className="user-meta-info">
-                            <h6
-                              className="user-name mb-0"
-                              data-name="Amelia Armstrong"
-                            >
-                              {" "}
-                              Amelia Armstrong{" "}
-                            </h6>
-                            <span
-                              className="user-work fs-3"
-                              data-occupation="Ethical Hacker"
-                            >
-                              Ethical Hacker
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-email-addr"
-                        data-email="armstrong@mail.com"
-                      >
-                        armstrong@mail.com
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-location"
-                        data-location="Tokyo, Japan"
-                      >
-                        Tokyo, Japan
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-ph-no"
-                        data-phone="+91 (154) 199- 1540"
-                      >
-                        +91 (154) 199- 1540
-                      </span>
-                    </td>
-                    <td>
-                      <div className="action-btn">
-                        <a href="javascript:void(0)" className="text-info edit">
-                          <i className="ti ti-eye fs-5" />
-                        </a>
-                        <a
-                          href="javascript:void(0)"
-                          className="text-dark delete ms-2"
-                        >
-                          <i className="ti ti-trash fs-5" />
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                  {/* end row */}
-                  {/* start row */}
-                  <tr className="search-items">
-                    <td>
-                      <div className="n-chk align-self-center text-center">
-                        <div className="form-check">
-                          <input
-                            type="checkbox"
-                            className="form-check-input contact-chkbox primary"
-                            id="checkbox5"
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="checkbox5"
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <img
-                          src="../../dist/images/profile/user-5.jpg"
-                          alt="avatar"
-                          className="rounded-circle"
-                          width={35}
-                        />
-                        <div className="ms-3">
-                          <div className="user-meta-info">
-                            <h6
-                              className="user-name mb-0"
-                              data-name="Emily Atkinson"
-                            >
-                              {" "}
-                              Emily Atkinson{" "}
-                            </h6>
-                            <span
-                              className="user-work fs-3"
-                              data-occupation="Web developer"
-                            >
-                              Web developer
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-email-addr"
-                        data-email="atkinson@mail.com"
-                      >
-                        atkinson@mail.com
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-location"
-                        data-location="Edinburgh, UK"
-                      >
-                        Edinburgh, UK
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-ph-no"
-                        data-phone="+91 (900) 150- 1500"
-                      >
-                        +91 (900) 150- 1500
-                      </span>
-                    </td>
-                    <td>
-                      <div className="action-btn">
-                        <a href="javascript:void(0)" className="text-info edit">
-                          <i className="ti ti-eye fs-5" />
-                        </a>
-                        <a
-                          href="javascript:void(0)"
-                          className="text-dark delete ms-2"
-                        >
-                          <i className="ti ti-trash fs-5" />
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                  {/* end row */}
-                  {/* start row */}
-                  <tr className="search-items">
-                    <td>
-                      <div className="n-chk align-self-center text-center">
-                        <div className="form-check">
-                          <input
-                            type="checkbox"
-                            className="form-check-input contact-chkbox primary"
-                            id="checkbox6"
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="checkbox6"
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <img
-                          src="../../dist/images/profile/user-1.jpg"
-                          alt="avatar"
-                          className="rounded-circle"
-                          width={35}
-                        />
-                        <div className="ms-3">
-                          <div className="user-meta-info">
-                            <h6
-                              className="user-name mb-0"
-                              data-name="Sofia Bailey"
-                            >
-                              Sofia Bailey
-                            </h6>
-                            <span
-                              className="user-work fs-3"
-                              data-occupation="UX/UI Designer"
-                            >
-                              UX/UI Designer
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-email-addr"
-                        data-email="bailey@mail.com"
-                      >
-                        bailey@mail.com
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-location"
-                        data-location="New York, USA"
-                      >
-                        New York, USA
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-ph-no"
-                        data-phone="+91 (001) 160- 1845"
-                      >
-                        +91 (001) 160- 1845
-                      </span>
-                    </td>
-                    <td>
-                      <div className="action-btn">
-                        <a href="javascript:void(0)" className="text-info edit">
-                          <i className="ti ti-eye fs-5" />
-                        </a>
-                        <a
-                          href="javascript:void(0)"
-                          className="text-dark delete ms-2"
-                        >
-                          <i className="ti ti-trash fs-5" />
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr className="search-items">
-                    <td>
-                      <div className="n-chk align-self-center text-center">
-                        <div className="form-check">
-                          <input
-                            type="checkbox"
-                            className="form-check-input contact-chkbox primary"
-                            id="checkbox7"
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="checkbox7"
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <img
-                          src="../../dist/images/profile/user-2.jpg"
-                          alt="avatar"
-                          className="rounded-circle"
-                          width={35}
-                        />
-                        <div className="ms-3">
-                          <div className="user-meta-info">
-                            <h6
-                              className="user-name mb-0"
-                              data-name="Victoria Sharma"
-                            >
-                              {" "}
-                              Victoria Sharma{" "}
-                            </h6>
-                            <span
-                              className="user-work fs-3"
-                              data-occupation="Project Manager"
-                            >
-                              Project Manager
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-email-addr"
-                        data-email="sharma@mail.com"
-                      >
-                        sharma@mail.com
-                      </span>
-                    </td>
-                    <td>
-                      <span className="usr-location" data-location="Miami, USA">
-                        Miami, USA
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-ph-no"
-                        data-phone="+91 (110) 180- 1600"
-                      >
-                        +91 (110) 180- 1600
-                      </span>
-                    </td>
-                    <td>
-                      <div className="action-btn">
-                        <a href="javascript:void(0)" className="text-info edit">
-                          <i className="ti ti-eye fs-5" />
-                        </a>
-                        <a
-                          href="javascript:void(0)"
-                          className="text-dark delete ms-2"
-                        >
-                          <i className="ti ti-trash fs-5" />
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr className="search-items">
-                    <td>
-                      <div className="n-chk align-self-center text-center">
-                        <div className="form-check">
-                          <input
-                            type="checkbox"
-                            className="form-check-input contact-chkbox primary"
-                            id="checkbox8"
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="checkbox8"
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <img
-                          src="../../dist/images/profile/user-3.jpg"
-                          alt="avatar"
-                          className="rounded-circle"
-                          width={35}
-                        />
-                        <div className="ms-3">
-                          <div className="user-meta-info">
-                            <h6
-                              className="user-name mb-0"
-                              data-name="Penelope Baker"
-                            >
-                              {" "}
-                              Penelope Baker{" "}
-                            </h6>
-                            <span
-                              className="user-work fs-3"
-                              data-occupation="Web Developer"
-                            >
-                              Web Developer
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-email-addr"
-                        data-email="baker@mail.com"
-                      >
-                        baker@mail.com
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-location"
-                        data-location="Edinburgh, UK"
-                      >
-                        Edinburgh, UK
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className="usr-ph-no"
-                        data-phone="+91 (405) 483- 4512"
-                      >
-                        +91 (405) 483- 4512
-                      </span>
-                    </td>
-                    <td>
-                      <div className="action-btn">
-                        <a href="javascript:void(0)" className="text-info edit">
-                          <i className="ti ti-eye fs-5" />
-                        </a>
-                        <a
-                          href="javascript:void(0)"
-                          className="text-dark delete ms-2"
-                        >
-                          <i className="ti ti-trash fs-5" />
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
             </div>
           </div>
         </div>
       </div>
-      <div className="dark-transparent sidebartoggler" />
-      <div className="dark-transparent sidebartoggler" />
     </>
   );
 }
