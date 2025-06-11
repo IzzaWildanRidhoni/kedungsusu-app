@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,14 @@ export default function RegisterPage() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
   const setAuth = useAuthStore((state) => state.setAuth);
+
+  // Cek apakah token ada di cookies, redirect jika sudah login
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) {
+      router.push("/");
+    }
+  }, []);
 
   const [formData, setFormData] = useState({
     name: "",

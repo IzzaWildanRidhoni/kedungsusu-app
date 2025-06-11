@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import axios from "axios";
-import useAuthStore from "../../../stores/authStore";
+import useAuthStore from "../../stores/authStore";
 import Image from "next/image";
 
 export default function Sidebar() {
