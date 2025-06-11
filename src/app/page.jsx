@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import Sidebar from "./components/Sidebar";
-import Image from "next/image";
 
 export default function HomePage() {
   const router = useRouter();
@@ -32,60 +31,7 @@ export default function HomePage() {
         data-header-position="fixed"
       >
         {/* Sidebar Start */}
-        <aside className="left-sidebar">
-          {/* Sidebar scroll*/}
-          <div>
-            <div className="brand-logo d-flex align-items-center justify-content-between">
-              <a href="/" className="text-nowrap logo-img">
-                <Image
-                  src="https://demos.adminmart.com/premium/bootstrap/modernize-bootstrap/package/dist/images/logos/dark-logo.svg"
-                  className="dark-logo"
-                  width={180}
-                  height={30}
-                  alt=""
-                />
-              </a>
-              <div
-                className="close-btn d-lg-none d-block sidebartoggler cursor-pointer"
-                id="sidebarCollapse"
-              >
-                <i className="ti ti-x fs-8 text-muted" />
-              </div>
-            </div>
-            {/* Sidebar navigation*/}
-            <Sidebar />
-            <div className="fixed-profile p-3 bg-light-secondary rounded sidebar-ad mt-3">
-              <div className="hstack gap-3">
-                <div className="john-img">
-                  <img
-                    src="/images/profile/user-1.jpg"
-                    className="rounded-circle"
-                    width={40}
-                    height={40}
-                    alt=""
-                  />
-                </div>
-                <div className="john-title">
-                  <h6 className="mb-0 fs-4 fw-semibold">Mathew</h6>
-                  <span className="fs-2 text-dark">Designer</span>
-                </div>
-                <button
-                  className="border-0 bg-transparent text-primary ms-auto"
-                  tabIndex={0}
-                  type="button"
-                  aria-label="logout"
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="top"
-                  data-bs-title="logout"
-                >
-                  <i className="ti ti-power fs-6" />
-                </button>
-              </div>
-            </div>
-            {/* End Sidebar navigation */}
-          </div>
-          {/* End Sidebar scroll*/}
-        </aside>
+        <Sidebar />
         {/*  Sidebar End */}
         {/*  Main wrapper */}
         <div className="body-wrapper">
