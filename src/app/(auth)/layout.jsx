@@ -11,15 +11,6 @@ export const metadata = {
 export default function AuthLayout({ children }) {
   return (
     <div>
-      {/* Preloader */}
-      <div className="preloader">
-        <img
-          src="https://demos.adminmart.com/premium/bootstrap/modernize-bootstrap/package/dist/images/logos/favicon.ico"
-          alt="loader"
-          className="lds-ripple img-fluid"
-        />
-      </div>
-
       {/* Halaman anak */}
       {children}
 

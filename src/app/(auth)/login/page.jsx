@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,14 +13,24 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
+  // Cek apakah token ada di cookies, redirect jika sudah login
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) {
+      router.push("/");
+    }
+  }, []);
+
+  // handle login
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg("");
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/login", {
+      const response = await axios.post(`${API_URL}/api/login`, {
         email,
         password,
       });
@@ -27,12 +38,9 @@ export default function LoginPage() {
       const token = response.data.data.token;
       const user = response.data.data.user;
 
-      // Simpan token dan user
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      // Set token untuk axios default header
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      // Simpan token dan user ke cookie
+      Cookies.set("token", token, { expires: 7 }); // expires in 7 days
+      Cookies.set("user", JSON.stringify(user), { expires: 7 });
 
       router.push("/");
     } catch (error) {
@@ -92,6 +100,15 @@ export default function LoginPage() {
                   </p>
 
                   <form onSubmit={handleLogin}>
+                    {errorMsg && (
+                      <div
+                        className="alert alert-danger text-center py-2 mb-3"
+                        role="alert"
+                      >
+                        {errorMsg}
+                      </div>
+                    )}
+
                     <div className="mb-3">
                       <label
                         htmlFor="exampleInputEmail1"
