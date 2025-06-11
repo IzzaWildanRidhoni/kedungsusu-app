@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 import $ from "jquery";
 import "datatables.net-bs5";
 import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
+import Link from "next/link";
 
 export default function UsersPage() {
   const tableRef = useRef(null);
@@ -30,7 +31,7 @@ export default function UsersPage() {
         $(tableRef.current).DataTable({
           data: users,
           columns: [
-            { data: "id", title: "ID" },
+            { data: "id", title: "No" },
             { data: "name", title: "Name" },
             { data: "email", title: "Email" },
             {
@@ -89,9 +90,9 @@ export default function UsersPage() {
                 <nav aria-label="breadcrumb">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
-                      <a className="text-muted " href="index.html">
+                      <Link className="text-muted " href="/">
                         Dashboard
-                      </a>
+                      </Link>
                     </li>
                     <li className="breadcrumb-item" aria-current="page">
                       User Management
@@ -102,7 +103,7 @@ export default function UsersPage() {
               <div className="col-3">
                 <div className="text-center mb-n5">
                   <img
-                    src="../../dist/images/breadcrumb/ChatBc.png"
+                    src="/images/breadcrumb/ChatBc.png"
                     alt=""
                     className="img-fluid mb-n4"
                   />
