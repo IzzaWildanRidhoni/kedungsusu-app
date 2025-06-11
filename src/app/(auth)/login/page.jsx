@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import useAuthStore from "../../../../stores/authStore";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,6 +15,8 @@ export default function LoginPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
+  const setAuth = useAuthStore((state) => state.setAuth);
 
   // Cek apakah token ada di cookies, redirect jika sudah login
   useEffect(() => {
@@ -38,9 +41,9 @@ export default function LoginPage() {
       const token = response.data.data.token;
       const user = response.data.data.user;
 
-      // Simpan token dan user ke cookie
-      Cookies.set("token", token, { expires: 7 }); // expires in 7 days
-      Cookies.set("user", JSON.stringify(user), { expires: 7 });
+      Cookies.set("token", token, { expires: 7 });
+
+      setAuth({ user, role: user.role, permissions: user.permissions });
 
       router.push("/");
     } catch (error) {

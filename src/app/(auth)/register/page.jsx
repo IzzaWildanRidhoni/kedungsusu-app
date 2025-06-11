@@ -6,10 +6,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import axios from "axios";
+import useAuthStore from "../../../../stores/authStore";
 
 export default function RegisterPage() {
   const router = useRouter();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
+  const setAuth = useAuthStore((state) => state.setAuth);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -45,9 +48,14 @@ export default function RegisterPage() {
       const response = await axios.post(`${API_URL}/api/register`, formData);
 
       const token = response.data.data.token;
+      const user = response.data.data.user;
+
       Cookies.set("token", token, { expires: 7 });
-      Cookies.set("user", JSON.stringify(response.data.data.user), {
-        expires: 7,
+
+      setAuth({
+        user: user,
+        role: user.role,
+        permissions: user.permissions,
       });
 
       router.push("/");
