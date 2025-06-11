@@ -44,8 +44,6 @@ export default function RegisterPage() {
     try {
       const response = await axios.post(`${API_URL}/api/register`, formData);
 
-      console.log(response.data);
-
       const token = response.data.data.token;
       Cookies.set("token", token, { expires: 7 });
       Cookies.set("user", JSON.stringify(response.data.data.user), {
