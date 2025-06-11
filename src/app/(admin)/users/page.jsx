@@ -85,7 +85,7 @@ export default function UsersPage() {
           <div className="card-body px-4 py-3">
             <div className="row align-items-center">
               <div className="col-9">
-                <h4 className="fw-semibold mb-8">Editable</h4>
+                <h4 className="fw-semibold mb-8">User Management</h4>
                 <nav aria-label="breadcrumb">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
@@ -94,7 +94,7 @@ export default function UsersPage() {
                       </a>
                     </li>
                     <li className="breadcrumb-item" aria-current="page">
-                      Table-Editable
+                      User Management
                     </li>
                   </ol>
                 </nav>
