@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Cookies from "js-cookie";
 import axios from "axios";
 import useAuthStore from "../../stores/authStore";
 import Image from "next/image";
 
 export default function Sidebar() {
+  const pathname = usePathname();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
   const router = useRouter();
   const token = Cookies.get("token");
@@ -66,8 +67,12 @@ export default function Sidebar() {
               <span className="hide-menu">Home</span>
             </li>
 
-            <li className="sidebar-item">
-              <Link className="sidebar-link" href="/" aria-expanded="false">
+            <li className="sidebar-item ">
+              <Link
+                className={`sidebar-link ${pathname === "/" ? "active" : ""}`}
+                href="/"
+                aria-expanded="false"
+              >
                 <span className="d-flex">
                   <i className="ti ti-home" />
                 </span>
@@ -78,7 +83,9 @@ export default function Sidebar() {
             {permissions.includes("user.read") && (
               <li className="sidebar-item">
                 <Link
-                  className="sidebar-link"
+                  className={`sidebar-link ${
+                    pathname === "/users" ? "active" : ""
+                  }`}
                   href="/users"
                   aria-expanded="false"
                 >
@@ -93,7 +100,9 @@ export default function Sidebar() {
             {permissions.includes("product.read") && (
               <li className="sidebar-item">
                 <Link
-                  className="sidebar-link"
+                  className={`sidebar-link ${
+                    pathname === "/products" ? "active" : ""
+                  }`}
                   href="/products"
                   aria-expanded="false"
                 >
@@ -108,7 +117,9 @@ export default function Sidebar() {
             {permissions.includes("order.read") && (
               <li className="sidebar-item">
                 <Link
-                  className="sidebar-link"
+                  className={`sidebar-link ${
+                    pathname === "/orders" ? "active" : ""
+                  }`}
                   href="/orders"
                   aria-expanded="false"
                 >
