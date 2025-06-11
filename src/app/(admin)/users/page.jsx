@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function UsersPage() {
   return (
     <>
@@ -9,16 +11,16 @@ export default function UsersPage() {
           <div className="card-body px-4 py-3">
             <div className="row align-items-center">
               <div className="col-9">
-                <h4 className="fw-semibold mb-8">Contact</h4>
+                <h4 className="fw-semibold mb-8">Users</h4>
                 <nav aria-label="breadcrumb">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
-                      <a className="text-muted " href="index.html">
-                        Dashboard
-                      </a>
+                      <Link className="text-muted " href="/">
+                        Page
+                      </Link>
                     </li>
                     <li className="breadcrumb-item" aria-current="page">
-                      Contact
+                      Users
                     </li>
                   </ol>
                 </nav>
@@ -55,21 +57,21 @@ export default function UsersPage() {
                   className="action-btn show-btn"
                   style={{ display: "none" }}
                 >
-                  <a
-                    href="javascript:void(0)"
+                  <Link
+                    href="/users"
                     className="delete-multiple btn-light-danger btn me-2 text-danger d-flex align-items-center font-medium"
                   >
                     <i className="ti ti-trash text-danger me-1 fs-5" /> Delete
                     All Row
-                  </a>
+                  </Link>
                 </div>
-                <a
-                  href="javascript:void(0)"
+                <Link
+                  href="/users/add"
                   id="btn-add-contact"
                   className="btn btn-info d-flex align-items-center"
                 >
-                  <i className="ti ti-users text-white me-1 fs-5" /> Add Contact
-                </a>
+                  <i className="ti ti-users text-white me-1 fs-5" /> Add User
+                </Link>
               </div>
             </div>
           </div>
@@ -88,7 +90,7 @@ export default function UsersPage() {
             <div className="modal-dialog modal-dialog-centered" role="document">
               <div className="modal-content">
                 <div className="modal-header d-flex align-items-center">
-                  <h5 className="modal-title">Contact</h5>
+                  <h5 className="modal-title">Add User</h5>
                   <button
                     type="button"
                     className="btn-close"
