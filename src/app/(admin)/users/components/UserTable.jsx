@@ -42,9 +42,9 @@ const UserTable = forwardRef((props, ref) => {
               <a href="/admin/users/${row.id}" class="btn btn-sm btn-info me-1">
                   <i class="ti ti-eye"></i>
               </a>
-              <a href="/admin/users/${row.id}/edit" class="btn btn-sm btn-warning me-1">
+              <button class="btn btn-sm btn-warning edit-btn" data-id="${row.id}">
                   <i class="ti ti-pencil"></i>
-              </a>
+              </button>
               <button class="btn btn-sm btn-danger delete-btn" data-id="${row.id}">
                   <i class="ti ti-trash"></i>
               </button>
@@ -69,6 +69,25 @@ const UserTable = forwardRef((props, ref) => {
           } catch (err) {
             alert("Gagal menghapus.");
           }
+        }
+      });
+
+      $(tableRef.current).on("click", ".edit-btn", async function () {
+        const id = $(this).data("id");
+        try {
+          const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/users/${id}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+
+          const userData = response.data.data;
+          if (props.onEdit) {
+            props.onEdit(userData);
+          }
+        } catch (err) {
+          alert("Gagal mengedit.");
         }
       });
     }

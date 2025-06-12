@@ -3,15 +3,23 @@
 import Link from "next/link";
 import UserModalForm from "./components/UserModalForm";
 import UserTable from "./components/UserTable";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 export default function UsersPage() {
   const tableRef = useRef(null);
+  const [editData, setEditData] = useState(null);
 
-  const handleSuccessAddUser = () => {
+  const handleSuccess = () => {
     if (tableRef.current) {
       tableRef.current.reloadTable();
     }
+    setEditData(null);
+  };
+
+  const handleEditClick = (user) => {
+    setEditData(user);
+    const modal = new bootstrap.Modal(document.getElementById("addUserModal"));
+    modal.show();
   };
   return (
     <>
@@ -61,6 +69,7 @@ export default function UsersPage() {
                       className="btn btn-info d-flex align-items-center"
                       data-bs-toggle="modal"
                       data-bs-target="#addUserModal"
+                      onClick={() => setEditData(null)}
                     >
                       <i className="ti ti-users text-white me-1 fs-5" /> Add
                       User
@@ -69,14 +78,18 @@ export default function UsersPage() {
                 </div>
               </div>
               <div className="card-body">
-                <UserTable ref={tableRef} />
+                <UserTable ref={tableRef} onEdit={handleEditClick} />
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <UserModalForm onSuccess={handleSuccessAddUser} />
+      <UserModalForm
+        onSuccess={handleSuccess}
+        editData={editData}
+        onClose={() => setEditData(null)}
+      />
     </>
   );
 }

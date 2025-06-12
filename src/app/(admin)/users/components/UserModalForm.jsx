@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const UserModalForm = ({ onSuccess }) => {
+const UserModalForm = ({ onSuccess, editData = null, onClose }) => {
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -14,8 +14,22 @@ const UserModalForm = ({ onSuccess }) => {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  // ⏳ Isi form saat editData berubah
+  useEffect(() => {
+    if (editData) {
+      setForm({
+        name: editData.name || "",
+        email: editData.email || "",
+        password: "", // Biarkan kosong saat edit
+        role: editData.roles?.[0]?.name || "", // asumsi hanya 1 role
+      });
+      setErrors({});
+    } else {
+      setForm({ name: "", email: "", password: "", role: "" });
+    }
+  }, [editData]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -42,9 +56,15 @@ const UserModalForm = ({ onSuccess }) => {
     const token = Cookies.get("token");
 
     try {
-      await axios.post(`${API_URL}/api/users`, form, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      if (editData) {
+        await axios.put(`${API_URL}/api/users/${editData.id}`, form, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } else {
+        await axios.post(`${API_URL}/api/users`, form, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
 
       setForm({ name: "", email: "", password: "", role: "" });
       setErrors({});
@@ -74,7 +94,9 @@ const UserModalForm = ({ onSuccess }) => {
       <div className="modal-dialog modal-dialog-centered" role="document">
         <div className="modal-content">
           <div className="modal-header d-flex align-items-center">
-            <h5 className="modal-title">Add User</h5>
+            <h5 className="modal-title">
+              {editData ? "Edit User" : "Add User"}
+            </h5>
             <button
               type="button"
               id="btn-close"
