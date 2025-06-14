@@ -4,35 +4,32 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import $ from "jquery";
 
-const UserTable = forwardRef((props, ref) => {
+const ProductTable = forwardRef((props, ref) => {
   const tableRef = useRef(null);
   const tableInstance = useRef(null);
 
   const fetchData = async () => {
     const token = Cookies.get("token");
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/users`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/products`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
 
-    const users = response.data.data;
+    const products = response.data.data;
 
     if ($.fn.DataTable.isDataTable(tableRef.current)) {
-      tableInstance.current.clear().rows.add(users).draw();
+      tableInstance.current.clear().rows.add(products).draw();
     } else {
       tableInstance.current = $(tableRef.current).DataTable({
-        data: users,
+        data: products,
         columns: [
           { data: "id", title: "No" },
           { data: "name", title: "Name" },
-          { data: "email", title: "Email" },
-          {
-            data: "roles",
-            title: "Role",
-            render: (data) => data?.map((r) => r.name).join(", ") || "-",
-          },
+          { data: "description", title: "Description" },
+          { data: "price", title: "Price" },
+          { data: "image_url", title: "Image" },
           {
             data: null,
             title: "Actions",
@@ -53,10 +50,10 @@ const UserTable = forwardRef((props, ref) => {
 
       $(tableRef.current).on("click", ".delete-btn", async function () {
         const id = $(this).data("id");
-        if (confirm("Yakin ingin menghapus user ini?")) {
+        if (confirm("Yakin ingin menghapus product ini?")) {
           try {
             await axios.delete(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/users/${id}`,
+              `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`,
               {
                 headers: { Authorization: `Bearer ${token}` },
               }
@@ -73,15 +70,15 @@ const UserTable = forwardRef((props, ref) => {
         const id = $(this).data("id");
         try {
           const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/users/${id}`,
+            `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`,
             {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
 
-          const userData = response.data.data;
+          const productData = response.data.data;
           if (props.onEdit) {
-            props.onEdit(userData);
+            props.onEdit(productData);
           }
         } catch (err) {
           alert("Gagal mengedit.");
@@ -119,4 +116,4 @@ const UserTable = forwardRef((props, ref) => {
   );
 });
 
-export default UserTable;
+export default ProductTable;
